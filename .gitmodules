@@ -1,0 +1,6 @@
+[submodule "web/modules/contrib/patternkit"]
+	path = web/modules/contrib/patternkit
+	url = https://github.com/cybtachyon/patternkit
+[submodule "web/themes/contrib/patternfly"]
+	path = web/themes/contrib/patternfly
+	url = https://github.com/cybtachyon/patternfly_theme
