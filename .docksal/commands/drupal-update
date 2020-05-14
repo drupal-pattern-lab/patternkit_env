@@ -2,7 +2,7 @@
 
 #: exec_target = cli
 
-## Update Drupal database to current code branch.
+## Update Drupal database to current code branch
 ##
 ## Usage: fin drupal-update
 
@@ -21,16 +21,8 @@ SITEDIR_PATH="${DOCROOT_PATH}/sites/${SITE_DIRECTORY}"
 #-------------------------- Helper functions --------------------------------
 
 # Console colors
-red='\033[0;31m'
-green='\033[0;32m'
-green_bg='\033[1;97;42m'
-yellow='\033[1;33m'
-NC='\033[0m'
-
-echo-red () { echo -e "${red}$1${NC}"; }
-echo-green () { echo -e "${green}$1${NC}"; }
-echo-green-bg () { echo -e "${green_bg}$1${NC}"; }
-echo-yellow () { echo -e "${yellow}$1${NC}"; }
+yellow=$'\033[1;33m'
+NC=$'\033[0m'
 
 #-------------------------- END: Helper functions --------------------------------
 
@@ -41,6 +33,6 @@ drush updb -y
 drush cim -y
 drush uli --browser=0
 
-echo -e "Open ${yellow}http://${VIRTUAL_HOST}${NC} in your browser to verify the setup."
+printf "%s\n" "Open ${yellow}http://${VIRTUAL_HOST}${NC} in your browser to verify the setup."
 
 #-------------------------- END: Execution --------------------------------

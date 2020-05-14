@@ -1,0 +1,52 @@
+# ./.tmuxinator.yml
+
+name: patternkit
+root: .
+
+# Optional tmux socket
+# socket_name: foo
+
+# Note that the pre and post options have been deprecated and will be replaced by
+# project hooks.
+
+# Project hooks
+# Runs on project start, always
+# on_project_start: command
+# Run on project start, the first time
+# on_project_first_start: command
+# Run on project start, after the first time
+# on_project_restart: command
+# Run on project exit ( detaching from tmux session )
+# on_project_exit: command
+# Run on project stop
+# on_project_stop: command
+
+# Runs in each window and pane before window/pane specific commands. Useful for setting up interpreter versions.
+# pre_window: rbenv shell 2.0.0-p247
+
+# Pass command line options to tmux. Useful for specifying a different tmux.conf.
+tmux_options: -f ./.tmux.conf
+
+# Change the command to call tmux.  This can be used by derivatives/wrappers like byobu.
+# tmux_command: byobu
+
+# Specifies (by name or index) which window will be selected on project startup. If not set, the first window is used.
+# startup_window: editor
+
+# Specifies (by index) which pane of the specified window will be selected on project startup. If not set, the first pane is used.
+# startup_pane: 1
+
+# Controls whether the tmux session should be attached to automatically. Defaults to true.
+# attach: false
+
+windows:
+  - editor:
+      layout: 6154,209x53,0,0[209x43,0,0,0,209x9,0,44{119x9,0,44,3,89x9,120,44,5}]
+      panes:
+        - vim +'PlugInstall --sync' +qa . && vim .
+        - git status
+        - fin doctor
+  - patternkit: cd web/modules/contrib/patternkit; git status
+  - patternfly: cd web/themes/contrib/patternfly; git status
+  - server: sleep 15; fin project start -y; fin bash
+  - logs: sleep 15; until fin exec curl patternkit-env.docksal; do sleep 15; done; fin drush en -y dblog; fin exec watch -tc drush ws

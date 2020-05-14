@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-## Use git-flow to start a new feature branch.
+## Use git-flow to start a new feature branch
 ##
 ## Usage: fin feature-start
 
@@ -10,31 +10,40 @@ set -euo pipefail
 #-------------------------- Helper functions --------------------------------
 
 # Console colors
-red='\033[0;31m'
-green='\033[0;32m'
-green_bg='\033[1;97;42m'
-yellow='\033[1;33m'
-NC='\033[0m'
-
-echo-red () { echo -e "${red}$1${NC}"; }
-echo-green () { echo -e "${green}$1${NC}"; }
-echo-green-bg () { echo -e "${green_bg}$1${NC}"; }
-echo-yellow () { echo -e "${yellow}$1${NC}"; }
+red_bg=$'\033[1;97;41m'
+green=$'\033[0;32m'
+green_bg=$'\033[1;97;42m'
+NC=$'\033[0m'
 
 #-------------------------- Execution --------------------------------
 
+if [[ -z "${1:-}" ]]; then
+  printf "%s\n" "${red_bg} ERROR ${NC} Provide a feature name, e.g. \"3107537-module-deps\"."
+  exit 1
+fi
+
+GIT_USERNAME=$(git config user.name)
+USERNAME="$(echo -e "${GIT_USERNAME}" | tr -d '[[:space:]]' | tr '[:upper:]' '[:lower:]')"
+if [[ -z "${USERNAME}" ]]; then
+  printf "%s\n" "${red_bg} ERROR ${red_bg} Your git username is not configured. Use \"git config user.name\".${NC}"
+  exit 1
+fi
+
 # Stack initialization
-echo -e "${green_bg} Step 1 ${NC}${green} Stashing current work and checking out a new feature branch...${NC}"
+printf "%s\n" "${green_bg} Step 1 ${NC}${green} Stashing current work and checking out a new feature branch...${NC}"
 git fetch origin
+git add .
 git stash save -u "Automatic stash via fin feature-start."
 git checkout -f master
 git rebase origin/master
 git submodule update --rebase --remote
+git checkout -b feature/"${USERNAME}"/${1}
 
 # Site initialization
-echo -e "${green_bg} Step 2 ${NC}${green} Updating site...${NC}"
+printf "%s\n" "${green_bg} Step 2 ${NC}${green} Updating site...${NC}"
 fin drupal-update
 
-echo -e "${green_bg} DONE! ${NC}${green} Completed all initialization steps.${NC}"
+printf "%s\n" "${green_bg} DONE! ${NC}${green} Completed all feature branching steps.${NC}"
+git status
 
 #-------------------------- END: Execution --------------------------------

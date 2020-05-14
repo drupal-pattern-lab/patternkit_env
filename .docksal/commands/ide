@@ -1,0 +1,160 @@
+#!/usr/bin/env bash
+
+## Set up a local IDE based on Tmux and VIm
+##
+## Usage: fin ide
+
+# Abort if anything fails
+set -euo pipefail
+
+#-------------------------- Settings --------------------------------
+
+# PROJECT_ROOT is passed from fin.
+# The following variables are configured in the '.env' file: DOCROOT, SITE_DIRECTORY, SOURCE_ALIAS and others.
+
+#-------------------------- END: Settings --------------------------------
+
+#-------------------------------- OS Checks ------------------------------------
+# OS version detection
+export OS_TYPE OS_NAME OS_VERSION OS_ID OS_ID_LIKE
+if  [[ -f "/etc/os-release" ]]; then
+  (uname -a | grep -v 'Microsoft' >/dev/null) && OS_TYPE="Linux" || OS_TYPE="WSL"
+  IFS=";" read OS_NAME OS_VERSION OS_ID OS_ID_LIKE < <(source "/etc/os-release"; echo "${NAME:-NULL};${VERSION_ID:-NULL};${ID:-NULL};${ID_LIKE:-NULL}")
+elif (uname | grep 'Darwin' >/dev/null); then
+  OS_TYPE="Darwin"
+  OS_NAME="$(sw_vers -productName)"
+  OS_VERSION="$(sw_vers -productVersion)"
+elif (uname | grep 'CYGWIN_NT' >/dev/null); then
+  OS_TYPE="Cygwin"
+  OS_NAME="Windows"
+  OS_VERSION="$(cmd /c ver | sed 's/.*Version \(.*\)\..*]/\1/')"
+fi
+
+is_linux ()
+{
+  [[ "$OS_TYPE" == "Linux" ]]
+}
+
+is_debian ()
+{
+  [[ "$OS_ID" == "ubuntu" ]] ||
+    [[ "$OS_ID" == "debian" ]] ||
+    [[ "$OS_ID_LIKE" == "ubuntu" ]] ||
+    [[ "$OS_ID_LIKE" == "debian" ]]
+}
+
+is_alpine ()
+{
+  [[ "$OS_ID" == "alpine" ]]
+}
+
+is_fedora ()
+{
+  [[ "$OS_ID" == "fedora" ]] ||
+    [[ "$OS_ID" == "centos" ]]
+}
+
+is_wsl ()
+{
+  [[ "$OS_TYPE" == "WSL" ]]
+}
+
+is_mac ()
+{
+  [[ "$OS_TYPE" == "Darwin" ]]
+}
+
+#-------------------------- Helper functions --------------------------------
+
+# Console colors
+red=$'\33[0;31m'
+green_bg=$'\33[42m'
+NC=$'\33[0m'
+
+# Yes/no confirmation dialog with an optional message
+# @param $1 confirmation message
+# @param $2 --no-exit
+_confirm ()
+{
+  while true; do
+    echo -en "${1:-} "
+    read -rp "[y/n]: " answer
+    case "$answer" in
+      [Yy]|[Yy][Ee][Ss] )
+        break
+        ;;
+      [Nn]|[Nn][Oo] )
+        [[ "${2:-}" == "--no-exit" ]] && return 1
+        exit 1
+        ;;
+      * )
+        echo 'Please answer yes or no.'
+    esac
+  done
+}
+
+install_ide () {
+  if is_linux; then
+    if is_debian; then
+      sudo apt-get update -qq \
+      && sudo apt-get install curl tmux tmuxinator vim -qq
+    fi
+
+    if is_fedora; then
+      sudo dnf install -y curl tmux tmuxinator vim
+    fi
+    sudo curl -fLo /etc/bash_completion.d/tmuxinator.bash --create-dirs \
+      https://raw.githubusercontent.com/tmuxinator/tmuxinator/master/completion/tmuxinator.bash
+    source /etc/bash_completion.d/tmuxinator.bash
+    tmuxinator doctor
+    curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+      https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    touch "${HOME}/.vimrc"
+    grep -q "exrc\|secure" < "${HOME}/.vimrc" || printf "set exrc \nset secure\n" >> "${HOME}/.vimrc"
+    vim +'PlugInstall --sync' +qa .
+    return $?
+
+    if is_alpine; then
+      printf "%s\n" "${red}Alpine Linux not supported at this time. Set up your IDE manually.${NC}"
+      return $?
+    fi
+
+    # All other distros
+    printf "%s\n" "${red}Other Linux not supported at this time. Set up your IDE manually.${NC}"
+    return $?
+  fi
+
+  is_wsl &&
+    printf "%s\n" "${red}WSL 1.0 not supported at this time. Set up your IDE manually.${NC}"
+    return $?
+
+  is_windows &&
+    printf "%s\n" "${red}Windows not supported at this time. Set up your IDE manually.${NC}"
+    return $?
+
+  if is_mac; then
+    xcode-select --install
+    if command -v brew >/dev/null 2>&1; then
+      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+    else
+      brew update
+    fi
+    brew install tmux tmuxinator vim
+    tmuxinator doctor
+    vim +'PlugInstall --sync' +qa .
+    return $?
+  fi
+}
+
+#-------------------------- END: Helper functions --------------------------------
+
+
+#-------------------------- Execution --------------------------------
+
+if _confirm "This will install dev tooling, including TMux, etc. Continue?"; then
+  printf "%s\n" "${green_bg} Step 1 ${NC} Installing IDE Tooling..."
+  install_ide
+  printf "%s\n" "${green_bg} DONE! ${NC} Start your IDE with \"mux .\""
+fi
+
+#-------------------------- END: Execution --------------------------------

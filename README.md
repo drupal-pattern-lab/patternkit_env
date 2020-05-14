@@ -45,6 +45,9 @@ Follow [Docksal environment setup instructions](https://docs.docksal.io/en/maste
 
 When the automated install is complete the command line output will display the admin username and password.
 
+## Experimental IDE
+
+This project ships with an experimental IDE you can set up via `fin ide`.
 
 ## More automation with 'fin init'
 
@@ -70,6 +73,16 @@ A new value can be generated with `drush ev '$hash = Drupal\Component\Utility\Cr
 
 This repo uses git sub-modules to make it easier to develop for Patternkit and its first-class theme PatternFly.
 
-    ```
+To make it easier, you can use the `fin feature-start` command to start working on new features.
 
-    ```
+This executes the following:
+
+```bash
+git fetch origin
+git add .
+git stash save -u "Automatic stash via fin feature-start."
+git checkout -f master
+git rebase origin/master
+git submodule update --rebase --remote
+git checkout -b feature/"${USERNAME}"/${1}
+```

@@ -1,0 +1,140 @@
+#!/usr/bin/env bash
+
+## Check your system for potential problems
+##
+## Usage: fin doctor
+
+# Abort if anything fails
+set -euo pipefail
+
+#-------------------------- Settings --------------------------------
+
+# PROJECT_ROOT is passed from fin.
+# The following variables are configured in the '.env' file: DOCROOT, SITE_DIRECTORY, SOURCE_ALIAS and others.
+
+#-------------------------- END: Settings --------------------------------
+
+#-------------------------------- OS Checks ------------------------------------
+# OS version detection
+export OS_TYPE OS_NAME OS_VERSION OS_ID OS_ID_LIKE
+if  [[ -f "/etc/os-release" ]]; then
+  (uname -a | grep -v 'Microsoft' >/dev/null) && OS_TYPE="Linux" || OS_TYPE="WSL"
+  IFS=";" read OS_NAME OS_VERSION OS_ID OS_ID_LIKE < <(source "/etc/os-release"; echo "${NAME:-NULL};${VERSION_ID:-NULL};${ID:-NULL};${ID_LIKE:-NULL}")
+elif (uname | grep 'Darwin' >/dev/null); then
+  OS_TYPE="Darwin"
+  OS_NAME="$(sw_vers -productName)"
+  OS_VERSION="$(sw_vers -productVersion)"
+elif (uname | grep 'CYGWIN_NT' >/dev/null); then
+  OS_TYPE="Cygwin"
+  OS_NAME="Windows"
+  OS_VERSION="$(cmd /c ver | sed 's/.*Version \(.*\)\..*]/\1/')"
+fi
+
+is_linux ()
+{
+  [[ "$OS_TYPE" == "Linux" ]]
+}
+
+is_debian ()
+{
+  [[ "$OS_ID" == "ubuntu" ]] ||
+    [[ "$OS_ID" == "debian" ]] ||
+    [[ "$OS_ID_LIKE" == "ubuntu" ]] ||
+    [[ "$OS_ID_LIKE" == "debian" ]]
+}
+
+is_alpine ()
+{
+  [[ "$OS_ID" == "alpine" ]]
+}
+
+is_fedora ()
+{
+  [[ "$OS_ID" == "fedora" ]] ||
+    [[ "$OS_ID" == "centos" ]]
+}
+
+is_wsl ()
+{
+  [[ "$OS_TYPE" == "WSL" ]]
+}
+
+is_mac ()
+{
+  [[ "$OS_TYPE" == "Darwin" ]]
+}
+
+#-------------------------- Helper functions --------------------------------
+
+# Console colors
+red=$'\033[0;91m'
+green_bg=$'\033[42m'
+yellow=$'\033[0;33m'
+NC=$'\033[0m'
+
+
+# Yes/no confirmation dialog with an optional message
+# @param $1 confirmation message
+# @param $2 --no-exit
+_confirm ()
+{
+  while true; do
+    echo -en "$1 "
+    read -rp "[y/n]: " answer
+    case "$answer" in
+      [Yy]|[Yy][Ee][Ss] )
+        break
+        ;;
+      [Nn]|[Nn][Oo] )
+        [[ "$2" == "--no-exit" ]] && return 1
+        exit 1
+        ;;
+      * )
+        printf "%s\n" "${red}Please answer yes or no.${NC}"
+    esac
+  done
+}
+
+doctor () {
+  if is_linux; then
+    command -v curl \
+      || printf "%s\n" "${yellow}Recommendation: Install curl.${NC}"
+
+    if is_debian; then
+      fin config
+      return $?
+    fi
+
+    if is_fedora; then
+      fin config
+      return $?
+    fi
+
+    if is_alpine; then
+      fin config
+      return $?
+    fi
+
+    # All other distros
+    fin config
+    return $?
+  fi
+
+  is_wsl && return $?
+
+  is_windows && return $?
+
+  if is_mac; then
+    brew doctor
+  fi
+}
+
+#-------------------------- END: Helper functions --------------------------------
+
+
+#-------------------------- Execution --------------------------------
+
+doctor
+printf "%s\n" "${green_bg}DONE!${NC} See above results."
+
+#-------------------------- END: Execution --------------------------------
