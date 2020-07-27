@@ -17,6 +17,9 @@ NC=$'\033[0m'
 
 #-------------------------- Execution --------------------------------
 
+fin config set --env=local XDEBUG_ENABLED=0
+printf "%s\n" "${green_bg} XDEBUG Turned OFF! ${NC} "
+
 # Stack initialization
 printf "%s\n" "${green_bg} Step 1 ${NC}${green} Initializing stack...${NC}"
 fin project reset -f

@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+## Reinstall Drupal
+##
+## Usage: fin drupal-install
+
+# Abort if anything fails
+set -euo pipefail
+
+#-------------------------- Settings --------------------------------
+
+# PROJECT_ROOT and DOCROOT are set as env variables in cli
+SITE_DIRECTORY="default"
+DOCROOT_PATH="${PROJECT_ROOT}/${DOCROOT}"
+SITEDIR_PATH="${DOCROOT_PATH}/sites/${SITE_DIRECTORY}"
+
+#-------------------------- END: Settings --------------------------------
+
+#-------------------------- Helper functions --------------------------------
+
+# Console colors
+green=$'\033[0;32m'
+green_bg=$'\033[1;97;42m'
+yellow=$'\033[1;33m'
+NC=$'\033[0m'
+
+# Install site
+site_install ()
+{
+  cd "$DOCROOT_PATH"
+
+  printf "%s\n" "${green}Installing Drupal...${NC}"
+  # We disable email sending here so site-install does not return an error
+  # Credit: https://www.drupal.org/project/phpconfig/issues/1826652#comment-12071700
+  fin drush site-install standard -y \
+    install_configure_form.enable_update_status_module=NULL \
+    --site-name='Patternkit Development Environment'
+}
+
+fin config set --env=local XDEBUG_ENABLED=0
+fin p restart
+printf "%s\n" "${green_bg} XDEBUG Turned OFF! ${NC} "
+time -p site_install
+fin drush uli
