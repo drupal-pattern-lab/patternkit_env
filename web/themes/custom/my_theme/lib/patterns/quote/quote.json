@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Quote Pattern",
+  "description": "A quote.",
+  "category": "patterns",
+  "type": "object",
+  "properties": {
+    "quote": {
+      "title": "Quote Body",
+      "type": "string",
+      "format": "textarea"
+    },
+    "citation": {
+      "title": "Citation Name/Title",
+      "type": "string"
+    }
+  }
+}

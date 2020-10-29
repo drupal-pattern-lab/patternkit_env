@@ -1,0 +1,11 @@
+<blockquote class="quote-card">
+  <p>
+    {{quote}}
+  </p>
+  <cite>
+    {{citation}}
+  </cite>
+</blockquote>
+{# You only need to attach a library if you're not loading it on every page in your theme's my_theme.info.yml #}
+{# @see https://www.drupal.org/docs/theming-drupal/adding-stylesheets-css-and-javascript-js-to-a-drupal-theme #}
+{{ attach_library('my_theme/quote') }}
