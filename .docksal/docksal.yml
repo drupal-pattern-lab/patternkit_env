@@ -1,1 +1,6 @@
 version: "2.1"
+services:
+  cli:
+    image: ${CLI_IMAGE:-docksal/cli:2-php7.3}
+  db:
+    image: ${DB_IMAGE:-docksal/mysql:5.7}
