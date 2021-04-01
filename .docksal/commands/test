@@ -8,7 +8,7 @@
 set -euo pipefail
 
 # Debug mode switch
-if [[ "${DEBUG}" != "" ]]; then
+if [[ "${DEBUG-}" != "" ]]; then
     set -x
 fi
 
@@ -17,3 +17,4 @@ curl -sL -I http://${VIRTUAL_HOST} | grep "HTTP/1.1 200 OK"
 curl -sL http://${VIRTUAL_HOST} | grep "My Drupal 8 Site"
 printf "%s\n" "Testing login page..."
 curl -sL -I http://${VIRTUAL_HOST}/user/login | grep "HTTP/1.1 200 OK"
+fin test-drupal

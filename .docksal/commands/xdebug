@@ -16,6 +16,10 @@ NC=$'\033[0m'
 
 #-------------------------- Execution --------------------------------
 
+## @todo For WSL2, we need to figure out how to run the following:
+## printf 'DOCKSAL_HOST_IP="%s"' $(ip route list default | grep -oP '(?<=default via\s)\d+(\.\d+){3}') >> ./.docksal/docksal-local.env
+## printf 'xdebug.client_host = "%s"' $(ip route list default | grep -oP '(?<=default via\s)\d+(\.\d+){3}') >> ./.docksal/etc/php/php.ini
+
 CURRENT_XDEBUG=$(fin config get --env=local XDEBUG_ENABLED)
 if [[ -z "$CURRENT_XDEBUG" ]] || [[ "$CURRENT_XDEBUG" = '"0"' ]]
  then
