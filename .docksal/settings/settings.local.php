@@ -130,7 +130,7 @@ $settings['rebuild_access'] = TRUE;
  */
 $settings['skip_permissions_hardening'] = TRUE;
 
-
+$settings['config_sync_directory'] = '/var/www/config/sync';
 
 // Docksal DB connection settings.
 $databases['default']['default'] = array (

@@ -17,13 +17,13 @@
     ],
     "require": {
         "php": ">=7.3",
-        "cweagans/composer-patches": "^1.6",
-        "drupal/config_inspector": "^1.1",
+        "composer/installers": "^1.9",
+        "cweagans/composer-patches": "^1.7",
         "drupal/console": "^1.9",
         "drupal/core": "^9.0.0",
-        "drupal/core-composer-scaffold": "^9.0.0",
+        "drupal/core-composer-scaffold": "^9.1",
         "drupal/core-project-message": "^9.0.0",
-        "drupal/core-recommended": "^9.0.0",
+        "drupal/core-recommended": "^9.1",
         "drupal/devel": "^4.0",
         "drupal/entity_clone": "1.x-dev",
         "drupal/examples": "^3.0",
@@ -32,13 +32,13 @@
         "drupal/tmgmt": "^1.12",
         "drush/drush": "^10.3",
         "phpspec/prophecy-phpunit": "^2.0",
-        "vlucas/phpdotenv": "^2.6",
+        "vlucas/phpdotenv": "^5.1",
         "webflo/drupal-finder": "^1.2",
-        "webmozart/path-util": "^2.3",
-        "zaporylie/composer-drupal-optimizations": "^1.1"
+        "webmozart/path-util": "^2.3"
     },
     "require-dev": {
-        "drupal/core-dev": "^9.0.0"
+        "drupal/core-dev": "^9.1",
+        "zaporylie/composer-drupal-optimizations": "^1.2"
     },
     "conflict": {
         "drupal/drupal": "*"
@@ -46,6 +46,7 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "config": {
+        "discard-changes": true,
         "sort-packages": true
     },
     "autoload": {
@@ -85,6 +86,9 @@
             "initial": {
                 ".editorconfig": "../.editorconfig",
                 ".gitattributes": "../.gitattributes"
+            },
+            "locations": {
+                "web-root": "web/"
             }
         }
     }
